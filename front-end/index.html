@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mercado do Jé</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <header>
+    <div class="top">
+      <h1>Mercado Da Jé Mane</h1>
+    </div>
+  </header>
+  <body>
+    <div class="page">
+      <div id="produtos_painel" class="produtos"></div>
+      <div class="carrinho_page">
+        <div class="carrinho_top_inf">
+          <div class="inf_valor">
+            <h3>Total R$: <span id="carrinho_inf_valor_template"> 0</span></h3>
+          </div>
+          <div class="inf_desc">
+            <h3 >Desconto R$: <span id="carrinho_inf_desc_template"> 0</span></h3>
+          </div>
+          <div class="inf_qtd">
+            <h3 >Produtos Qtd: <span id="carrinho_inf_qtd_template"> 0</span></h3>
+          </div>
+          <div class="inf_dif">
+            <h3 >Produtos Diferentes: <span id="carrinho_inf_qtd_dif_template"> 0</span></h3>
+          </div>
+        </div>
+        <div id="carrinho_painel"  class="carrinho">
+        </div>  
+        <button id="btn_limpar">Limpar</button>
+        <button id="btn_finalizar">Finalizar Conta</button>
+
+      </div>
+    </div>
+  </body>
+  <script src="mercado.js"></script>
+</html>

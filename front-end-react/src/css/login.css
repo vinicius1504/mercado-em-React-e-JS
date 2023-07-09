@@ -1,0 +1,63 @@
+@import url('https://fonts.cdnfonts.com/css/governor');
+body{
+  background-image: url(https://images5.alphacoders.com/111/1119534.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.login-page{
+  height: 100vh;
+  width: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-form {
+  border: 5px solid rgb(45, 23, 4);
+    color: aliceblue;
+    padding: 20px;
+    background: rgb(69, 46, 9);
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    /* display: flex;/ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .login-form h2 {
+    font-family: 'Governor', sans-serif;
+    text-align: center;
+    letter-spacing: 10px;
+    font-size: 50px;
+  }
+
+  .login-form input[type="text"],
+  .login-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .login-form button {
+    width: 100%;
+    padding: 10px;
+    background: #c0b300;
+    color: #000000;
+    font-size: 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .login-form button:hover {
+    background: #45a049;
+  }
+
+
+ 
+
+
