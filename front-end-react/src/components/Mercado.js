@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2'
 import "../css/style.css";
-const url_api = "https://unified-booster-392006.uc.r.appspot.com"
-// const url_api ="http://localhost:8080"
+const url_api = "https://unified-booster-392006.uc.r.appspot.com"  
+// const url_api = "http://localhost:8080"   
 
 async function deleteGenericJson(id, prefix) {
   const response = await fetch(`${url_api}/${prefix}/${id}`, {
@@ -36,9 +36,11 @@ async function getProdutos() {
   });
   const json = await response.json();
   return json;
+
 }
 
 export default function Mercado() {
+  const [termoPesquisa, setTermoPesquisa] = useState('');
   const { register, handleSubmit, getValues } = useForm();
   const [exibirFormulario, setExibirFormulario] = useState(false);
   const [produtos, setProdutos] = useState([]);
@@ -50,31 +52,86 @@ export default function Mercado() {
     produtos_dif: 0,
   });
   function adicionarProdutoAoCarrinho(produto) {
-    let isContem = false
-    carrinho.forEach((item) => {
-      if (item.id === produto.id) {
-        item.estoque += 1;
-        produto.estoque -= 1;
-        isContem = true;
-      }
-    });
-    if (!isContem) {
+    if (carrinho.length === 0) {
       let new_produto = { ...produto, estoque: 1 };
       produto.estoque -= 1;
       carrinho.push(new_produto);
-    }
-    atualizaDashboard("+", produto, carrinho);
-  }
-  function removeProdutoDoCarrinho(produto) {
-    produtos.forEach((item) => {
-      if (item.id === produto.id) {
-        item.estoque += 1;
+      console.log(produtos)
+    } else {
+      let isContem = false;
+      carrinho.forEach((item) => {
+        if (item.id === produto.id) {
+          item.estoque += 1;
+          produto.estoque -= 1;
+
+          isContem = true;
+        }
+      });
+      if (!isContem) {
+        let new_produto = { ...produto, estoque: 1 };
         produto.estoque -= 1;
+        carrinho.push(new_produto);
+      }
+    }
+
+    setCarrinho([...carrinho]);
+    info.total = Number((produto.valor + info.total).toFixed(2))
+    info.produtos += 1
+    info.produtos_dif = carrinho.length
+    //verificar
+    if (carrinho.length < 3 && carrinho.length < 5) {
+      info.desconto = 0
+    }
+    if (carrinho.length === 3 && carrinho.length <= 5) {
+      info.desconto = ((info.total * 0.1).toFixed(2))
+      console.log(info.desconto)
+    } else if (carrinho.length === 5) {
+      info.desconto = ((info.total * 0.2).toFixed(2))
+      console.log(info.desconto)
+    }
+    //verificar
+    setInf(info);
+  }
+
+  function removeProdutoDoCarrinho(produto) {
+
+    carrinho.forEach((item) => {
+      if (item.id === produto.id) {
+        item.estoque -= 1;
+        info.total = Number((info.total - produto.valor).toFixed(2));
+        info.produtos -= 1;
+
+        const produtoIndex = produtos.findIndex((p) => p.id === produto.id);
+        if (produtoIndex !== -1) {
+          const newProdutos = [...produtos];
+          newProdutos[produtoIndex].estoque += 1;
+          setProdutos(newProdutos);
+        }
       }
     });
+
+    if (info.total <= 0.01) {
+      info.total = 0;
+    }
     let newCarrinhoSemProduto = carrinho.filter((item) => item.estoque !== 0);
-    atualizaDashboard("-", produto, newCarrinhoSemProduto);
+    info.produtos_dif = newCarrinhoSemProduto.length
+
+    if (info.produtos_dif < 3) {
+      info.desconto = 0
+    }
+    if (info.produtos_dif === 3 && info.produtos_dif <= 5) {
+      info.desconto = ((info.total * 0.1).toFixed(2))
+
+    } else if (info.produtos_dif >= 5) {
+      info.desconto = ((info.total * 0.1).toFixed(2))
+
+    }
+    setCarrinho(newCarrinhoSemProduto);
+    setInf(info);
+
   }
+
+  //Limpar o carrinho
   function removeTudoDoCarrinho() {
     carrinho.forEach((itemCarrinho) => {
       const produto =
@@ -89,32 +146,27 @@ export default function Mercado() {
     info.produtos_dif = 0
 
   };
-  function atualizaDashboard(operador, produto, carrinho) {
-    setCarrinho([...carrinho]);
-    info.produtos_dif = carrinho.length;
-    if (operador === "+") {
-      info.total = produto.valor + info.total;
-      info.produtos += 1;
-    } else if (operador === "-") {
-      info.total = info.total - produto.valor;
-      info.produtos -= 1;
-    }
-    if (info.produtos < 1) {
-      info.total = 0
-    }
-    atualizaDesconto();
+  function btn_finalizar() {
+    Swal.fire(`Total de sua compra foi: ${(info.total - info.desconto).toFixed(2)}`)
 
   }
-  function atualizaDesconto() {
-    if (info.produtos_dif >= 3 && info.produtos_dif < 5) {
-      info.desconto = info.total * 0.1;
-    } else if (info.produtos_dif >= 5) {
-      info.desconto = info.total * 0.2;
+
+  // função para pesquisar
+  useEffect(() => {
+    if (termoPesquisa === '') {
+      getProdutos().then((data) => {
+        setProdutos(data);
+      });
     } else {
-      info.desconto = 0;
+      // Filtrar os produtos com base no termo de pesquisa
+      const produtosFiltrados = produtos.filter((produto) =>
+        produto.nome.toLowerCase().includes(termoPesquisa.toLowerCase())
+      );
+      setProdutos(produtosFiltrados);
     }
-    setInf({ ...info });
-  }
+  }, [termoPesquisa]);
+
+
   useEffect(() => {
     getProdutos().then((data) => {
       setProdutos(data);
@@ -139,30 +191,30 @@ export default function Mercado() {
       });
   };
 
-  function Deslogar() {                                                                                                                                                                  
+  function Deslogar() {
     localStorage.clear();
     window.location.reload(true);
   }
 
-  async function removerProduto(produto) {    
+  async function removerProduto(produto) {
     Swal.fire({
-    title: 'Confirmar remoção',
-    text: 'Tem certeza que deseja remover este produto?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim',
-    cancelButtonText: 'Não',
-  }).then(async (result) => {
-    if(result.isConfirmed){
-    const response = await deleteGenericJson(produto.id, "produtos")
-    .then(data => {
-      const updatedProdutos = produtos.filter(item => item.id !== produto.id);
-      setProdutos(updatedProdutos);
-      console.log('Produto removido com sucesso:', data);
-    })}})
+      title: 'Confirmar remoção',
+      text: 'Tem certeza que deseja remover este produto?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const response = await deleteGenericJson(produto.id, "produtos")
+          .then(data => {
+            const updatedProdutos = produtos.filter(item => item.id !== produto.id);
+            setProdutos(updatedProdutos);
+            console.log('Produto removido com sucesso:', data);
+          })
+      }
+    })
   }
-
-  
   const toggleExibirFormulario = () => {
     setExibirFormulario(!exibirFormulario);
   };
@@ -173,18 +225,36 @@ export default function Mercado() {
       <div className="topo">
         <div className="title">
           <h1>Mercadinho Tendi Tudo</h1>
+
         </div>
         <div className="login">
           <a>{localStorage.getItem("user")}</a>
           <a onClick={Deslogar}>Sair</a>
         </div>
       </div>
+      <div className="meio">
+        <div className="pesquisa">
+          <input
+            type="text"
+            placeholder="Digite o nome do produto..."
+            value={termoPesquisa}
+            onChange={(e) => setTermoPesquisa(e.target.value)}
+          />
+        </div>
+        <div className="meio_title">
+          <h1>Meu Carrinho</h1>
+        </div>
+      </div>
       <div className="pages">
+
         <div className="produtos">
           {produtos.map((produto) => (
             <div key={produto.id} className="card">
               <div className="cartao">
-                <div className="cartao_top">
+                <div className="remover">
+                  <a onClick={() => removerProduto(produto)}>X</a>
+                </div>
+                <div className="cartao_top_produos">
                   <p>{produto.nome}</p>
                 </div>
                 <div className="cartao_main">
@@ -200,11 +270,6 @@ export default function Mercado() {
                   <button className="cadbnt" onClick={() => adicionarProdutoAoCarrinho(produto)}>
                     Comprar
                   </button>
-                  <div className="cartao_botao">
-                    <button className="cadbnt" onClick={() => removerProduto(produto)}>
-                      Remover
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -259,7 +324,7 @@ export default function Mercado() {
                   </div>
                   <div className="cartao_botao">
                     <button className="cadbnt" onClick={() => removeProdutoDoCarrinho(produto)}>
-                      Remove
+                      Remover
                     </button>
                   </div>
                 </div>
@@ -268,18 +333,18 @@ export default function Mercado() {
           </div>
           <div className="bnts_carrinho">
             <button onClick={removeTudoDoCarrinho} className="cadbnt">Limpar</button>
-            <button className="cadbnt">Finalizar Conta</button>
-            <button  className="cadbnt" onClick={toggleExibirFormulario}> 
-            {exibirFormulario ? 
-            "Ocultar Formulário" 
-            : 
-            "Exibir Formulário"}
+            <button className="cadbnt" onClick={btn_finalizar}>Finalizar Conta</button>
+            <button className="cadbnt" onClick={toggleExibirFormulario}>
+              {exibirFormulario ?
+                "Ocultar Formulário"
+                :
+                "Exibir Formulário"}
             </button>
           </div>
           {exibirFormulario && (
             <div className="cadastro">
               <h2>Cadastro de Produtos</h2>
-              <form method="post" onSubmit={    handleSubmit(onSubmit)}>
+              <form method="post" onSubmit={handleSubmit(onSubmit)}>
                 <div className="inputs">
                   <div>
                     <label>
