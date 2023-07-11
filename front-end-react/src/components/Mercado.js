@@ -28,6 +28,7 @@ async function postGenericJson(data, prefix) {
   })
   return await response.json()
 }
+
 async function getProdutos() {
   const response = await fetch(`${url_api}/produtos`, {
     headers: {
@@ -40,6 +41,7 @@ async function getProdutos() {
 }
 
 export default function Mercado() {
+  const [Editaritem, setEditarItem] = useState()
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const { register, handleSubmit, getValues } = useForm();
   const [exibirFormulario, setExibirFormulario] = useState(false);
@@ -179,6 +181,7 @@ export default function Mercado() {
       currency: 'BRL'
     }).format(valor);
   }
+
   async function onSubmit() {
     const data = getValues();
     data.valor = parseFloat(data.valor);
@@ -219,13 +222,17 @@ export default function Mercado() {
     setExibirFormulario(!exibirFormulario);
   };
 
+  function editarProduto(produto){
+    console.log(produto)
+    setEditarItem(produto)
+    console.log(Editaritem)
+  }
 
   return (
     <>
       <div className="topo">
         <div className="title">
           <h1>Mercadinho Tendi Tudo</h1>
-
         </div>
         <div className="login">
           <a>{localStorage.getItem("user")}</a>
@@ -251,11 +258,11 @@ export default function Mercado() {
           {produtos.map((produto) => (
             <div key={produto.id} className="card">
               <div className="cartao">
-                <div className="remover">
-                  <a onClick={() => removerProduto(produto)}>X</a>
+                <div className="remover" onClick={() => removerProduto(produto)}>
+                  <a >X</a>
                 </div>
                 <div className="cartao_top_produos">
-                  <p>{produto.nome}</p>
+                  <p>{produto.id}-{produto.nome}</p>
                 </div>
                 <div className="cartao_main">
                   <img src={produto.img} alt="" />
@@ -269,6 +276,9 @@ export default function Mercado() {
                 <div className="cartao_botao">
                   <button className="cadbnt" onClick={() => adicionarProdutoAoCarrinho(produto)}>
                     Comprar
+                  </button>
+                  <button className="cadbnt" onClick={() => editarProduto(produto)}>
+                    Editar
                   </button>
                 </div>
               </div>
@@ -303,6 +313,12 @@ export default function Mercado() {
                     <span>{info.produtos_dif}</span>
                   </td>
                 </tr>
+                <tr>
+                  <td>Produtos loja:</td>
+                  <td>
+                    <span>{produtos.length}</span>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -334,6 +350,7 @@ export default function Mercado() {
           <div className="bnts_carrinho">
             <button onClick={removeTudoDoCarrinho} className="cadbnt">Limpar</button>
             <button className="cadbnt" onClick={btn_finalizar}>Finalizar Conta</button>
+
             <button className="cadbnt" onClick={toggleExibirFormulario}>
               {exibirFormulario ?
                 "Ocultar Formulário"
@@ -369,6 +386,36 @@ export default function Mercado() {
               </form>
             </div>
           )}
+          <div>
+          {    
+          Editaritem ? (
+            <div key={Editaritem.id} className="card">
+            <div className="cartao">
+              <div className="cartao_top">
+                <input value={Editaritem.nome} name='nome' onChange={handleChange}/>
+              </div>
+              <div className="cartao_main">
+                <img src={Editaritem.img} alt="" />
+              </div>
+              <div className="cartao_valor">
+                <p>R$:{Editaritem.valor}</p>
+              </div>
+              <div className="cartao_estoque">
+                <p>Quantidade: {Editaritem.estoque}</p>
+              </div>
+              <div className="cartao_botao">
+                <button className="cadbnt">
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+          ): (
+            <></>
+          )
+}
+
+          </div>
         </div>
       </div >
 
@@ -376,6 +423,11 @@ export default function Mercado() {
     </>
   )
 
-
+  function handleChange(event) {
+    console.log(event.target.nome.value);
+    Editaritem.name =event.target.nome.value
+    Editaritem.
+    
+  }
 }
 

@@ -134,6 +134,7 @@ function verifyToken(req, res, next) {
     next();
   });
 }
+
 app.post("/produtos",verifyToken,(req, res) => {
   var newItem = req.body;
   if(typeof newItem.id ==='number' && typeof newItem.user ==='string' &&  typeof newItem.img ==='string' && typeof newItem.valor ==='number' && typeof newItem.estoque ==='number'){
