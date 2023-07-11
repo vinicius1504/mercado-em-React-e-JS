@@ -142,7 +142,16 @@ button{
     background-color: rgb(77, 22, 0);
 }
 
-
+.cadastrouser{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(95, 53, 1);
+    color: antiquewhite;
+    height: 260px;
+    border: 1px black solid;
+    justify-content: space-around;
+  }
 
 .cadastro{
     display: flex;
@@ -150,11 +159,12 @@ button{
     align-items: center;
     background-color: rgb(95, 53, 1);
     color: antiquewhite;
-    height: 200px;
+    height: 230px;
     border: 1px black solid;
+    justify-content: space-around;
   }
 
-  .cadastro input{
+  .cadastro input, .cadastrouser input{
     display: flex;
     padding: 10px;
     border-radius:5px;
@@ -190,10 +200,15 @@ button{
     color: #a9a9a9;
     background-color: rgb(0, 0, 0);
   }
-
+.inputscaduser{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
 
 .inputs{
     display: flex;
+
   }
 
   .Banner{
@@ -308,6 +323,15 @@ button{
     background-color: rgb(80, 43, 1);
 }
 
+
+
+
+.Exclusao{
+    height: 150px;
+overflow-y: auto;
+
+
+}
 /* width */
 ::-webkit-scrollbar {
     width: 5px;

@@ -1,4 +1,3 @@
-
 const produtos_banco_de_dados = [
   {
     id: 1,
@@ -49,26 +48,21 @@ const produtos_banco_de_dados = [
     valor: 22.52,
     estoque: 121,
   }
-
-
-
 ];
 
 const db_fake = [
-  { id: 0, user: "vinicius", password: '12345', role:'admin' },
-  { id: 1, user: "rafael", password: '12345', role:'admin' },
-  { id: 2, user: "alison", password: '12345', role:'admin' },
-  { id: 3, user: "fernando", password: '12345' , role:'admin'},
-  { id: 4, user: "danillo", password: '12345' , role:'admin'},
-  { id: 5, user: "jonathan", password: '12345', role:'admin' },
-  { id: 6, user: "pedro", password: '12345', role:'admin' },
-  { id: 7, user: "yago", password: '12345', role:'admin' },
-  { id: 8, user: "eliz", password: '12345', role:'admin' },
-  { id: 9, user: "vinicius_leite", password: '12345' , role:'admin'},
-  { id: 10, user: "maria", password: '12345', role:'admin' }
-
+  { id: 0, user: "vinicius", password: "12345", img_user:"dsds" , role: "admin" },
+  { id: 1, user: "rafael", password: "12345", role: "admin" },
+  { id: 2, user: "alison", password: "12345", role: "admin" },
+  { id: 3, user: "fernando", password: "12345", role: "admin" },
+  { id: 4, user: "danillo", password: "12345", role: "admin" },
+  { id: 5, user: "jonathan", password: "12345", role: "admin" },
+  { id: 6, user: "pedro", password: "12345", role: "admin" },
+  { id: 7, user: "yago", password: "12345", role: "admin" },
+  { id: 8, user: "eliz", password: "12345", role: "admin" },
+  { id: 9, user: "vinicius_leite", password: "12345", role: "admin" },
+  { id: 10, user: "maria", password: "12345", role: "admin" },
 ];
-
 
 function insertItem(item) {
   produtos_banco_de_dados.push(item);
@@ -77,8 +71,11 @@ function insertItem(item) {
 function updateItem(id, updatedItem) {
   const index = produtos_banco_de_dados.findIndex((item) => item.id === id);
   if (index !== -1) {
-    produtos_banco_de_dados[index] = { ...produtos_banco_de_dados[index], ...updatedItem };
+    produtos_banco_de_dados[index] = {
+     ...updatedItem
+    };
   }
+  console.log(produtos_banco_de_dados)
 }
 
 function deleteItem(id) {
@@ -87,16 +84,37 @@ function deleteItem(id) {
     produtos_banco_de_dados.splice(index, 1);
   }
 }
-const jwt = require('jsonwebtoken');
-const secretKey = 'suaChaveSecreta';
+//-------------------------------------------------------------------
+
+function insertUser(item) {
+  db_fake.push(item);
+}
+
+function updateUser(id, updatedUser) {
+  const index = db_fake.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    db_fake[index] = {
+     ...updatedUser
+    };
+  }
+}
+function deleteUser(id) {
+  const index = db_fake.findIndex((item) => item.id === id);
+  if (index !== -1) {
+    db_fake.splice(index, 1);
+  }
+}
+const jwt = require("jsonwebtoken");
+const secretKey = "suaChaveSecreta";
 var express = require("express");
 var cors = require("cors");
 var app = express();
 const port = 8080;
 app.use(cors());
 app.use(express.json());
-let id=produtos_banco_de_dados.length+1
+let id = produtos_banco_de_dados.length + 1;
 
+let id_user = db_fake.length + 1;
 
 app.get("/", (req, res) => {
   res
@@ -110,45 +128,37 @@ app.post("/login", (req, res) => {
     (data) => data.user === user && data.password === password
   );
   if (isUser) {
-    const token = jwt.sign({ user }, secretKey);
-    res.status(200).jsonp({ login: true, token:token, role:'admin' });
+    const token = jwt.sign({ isUser }, secretKey);
+    res.status(200).jsonp({ login: true, role: isUser.role, token: token });
   } else {
     res.status(404).jsonp({ login: false });
   }
 });
 
-app.get("/produtos", (req, res) => {
-  res.status(200).jsonp(produtos_banco_de_dados);
-});
 function verifyToken(req, res, next) {
-  // console.log(req)
   const token = req.headers.authorization;
   if (!token) {
-    return res.status(401).json({ message: 'Token não fornecido' });
+    return res.status(401).json({ message: "Token não fornecido" });
   }
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'Token inválido' });
+      return res.status(403).json({ message: "Token inválido" });
     }
     req.user = decoded.user;
     next();
   });
 }
 
-app.post("/produtos",verifyToken,(req, res) => {
-  console.log("teste post")
+app.get("/produtos",verifyToken, (req, res) => {
+  res.status(200).jsonp(produtos_banco_de_dados);
+});
+
+app.post("/produtos", verifyToken, (req, res) => {
   var newItem = req.body;
-  // if(typeof newItem.id ==='number' && typeof newItem.user ==='string' &&  typeof newItem.img ==='string' && typeof newItem.valor ==='number' && typeof newItem.estoque ==='number'){
-    newItem.id=id;
-    insertItem(newItem);
-    id+=1
-    res.status(200).jsonp(newItem);
-    
-  // }else{
-    
-  //   res.status(400);
-  // }
-  
+  newItem.id = id;
+  insertItem(newItem);
+  id += 1;
+  res.status(200).jsonp(newItem);
 });
 
 app.put("/produtos/:id", verifyToken, (req, res) => {
@@ -158,25 +168,47 @@ app.put("/produtos/:id", verifyToken, (req, res) => {
   res.status(200).jsonp(updatedItem);
 });
 
-app.delete("/produtos/:id",  verifyToken,(req, res) => {
-  console.log("teste")
+app.delete("/produtos/:id", verifyToken, (req, res) => {
   const id = parseInt(req.params.id);
   deleteItem(id);
   res.status(200).jsonp(id);
 });
 
-app.listen(port, "0.0.0.0",  verifyToken,() => {
-  console.log(`Example app listening on port ${port}`);
+// ---------------------- user ----------------------------------
+app.get("/user",verifyToken, (req, res) => {
+  res.status(200).jsonp(db_fake);
 });
 
+app.get("/user/:id",verifyToken, (req, res) => {
+  const user =  db_fake.find(data => data.id ===req.params.id);
+  if(user!=-1){
+    res.status(200).jsonp(user);
+  }else{
+    res.status(404);
+  }
+});
 
+app.post("/user", verifyToken, (req, res) => {
+  var newUser = req.body;
+  newUser.id = id_user;
+  insertUser(newUser);
+  id_user += 1;
+  res.status(200).jsonp(newUser);
+});
 
+app.put("/user/:id", verifyToken, (req, res) => {
+  const id = parseInt(req.params.id);
+  const updatedUser = req.body;
+  updateUser(id, updatedUser);
+  res.status(200).jsonp(updatedUser);
+});
 
-// class Produto {
-//     constructor( produtoJson){
-//       id = produtoJson.id 
-//       img = produtoJson.img 
-//       valor = produtoJson.valor 
-//       estoque = produtoJson.estoque 
-//     }
-// }
+app.delete("/user/:id", verifyToken, (req, res) => {
+  const id = parseInt(req.params.id);
+  deleteUser(id);
+  res.status(200).jsonp(id);
+});
+
+app.listen(port, "0.0.0.0", verifyToken, () => {
+  console.log(`Example app listening on port ${port}`);
+});

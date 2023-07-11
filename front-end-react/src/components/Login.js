@@ -2,38 +2,53 @@ import "../css/login.css";
 import Dashboard from "./Dashboard";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-    
+  // const url_api = "https://unified-booster-392006.uc.r.appspot.com"
+  const url_api = "http://localhost:8080";
+
+async function PostCadastro(data, prefix) {
+  console.log(prefix)
+  const response = await fetch(`${url_api}${prefix}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: 'post',
+    body: data
+  });
+  const json = await response.json();
+  return json;
+}
+
+async function getLogin(data, prefix) {
+  console.log(prefix)
+  const response = await fetch(`${url_api}${prefix}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: 'post',
+    body: data
+  });
+  const json = await response.json();
+  return json;
+}
+
+
 
 function Login() {
   const { handleSubmit, register, getValues } = useForm();
   const [isLogin, setIsLogin] = useState(false)
-  // const url_api = "https://unified-booster-392006.uc.r.appspot.com"
-  const url_api = "http://localhost:8080";
+  const [exibirFormulario, setExibirFormulario] = useState(false);
+
 
   function isLoged() {
     const login = localStorage.getItem('token')
     if (login) {
       console.log(login)
       setIsLogin(true)
-    } else {
-      console.log('Você esta sem token')
     }
   }
 
-    async function getLogin(data, prefix) {
-      console.log(prefix)
-      const response = await fetch(`${url_api}${prefix}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: 'post',
-        body: data
-      });
-      const json = await response.json();
-      return json;
-    }
 
-    async function pegar() {
+    async function PegarLogin() {
       const formData = getValues();
       const json = JSON.stringify(formData);
       
@@ -45,7 +60,23 @@ function Login() {
         localStorage.setItem("user",formData.user)
         setIsLogin(data.login);
       });
+      
     };
+    async function PegarCadastro() {
+      const formData = getValues();
+      const json = JSON.stringify(formData);
+      console.log(json)
+
+      PostCadastro(json, '/user').then((data) => {
+        console.log("Resposta do Back-End: ", data);
+        setExibirFormulario(!exibirFormulario)
+      });
+      
+    };
+    const toggleExibirFormulario = () => {
+      setExibirFormulario(!exibirFormulario);
+    };
+
 
   useEffect(() => {
     isLoged();
@@ -53,27 +84,32 @@ function Login() {
   return isLogin ? (
     <Dashboard />
   ) : (
-    <div className="login-page">
-      <div className="login-form">
-        <h2>Login</h2>
-        <form method="post" onSubmit={handleSubmit(pegar)}>
-          <label>
-            <input type="text" placeholder="Usuário" name="user" {...register("user")} required />
-          </label>
-          <label>
-            <input
-              type="password"
-              placeholder="Senha"
-              name="password"
-              {...register("password")}
-              required
-            />
-          </label>
-          <button type="submit">Entrar</button>
-        </form>
-      </div>
-
-    </div>
+      <div className="login-page">
+        <div className="login-form">
+          <h2>Login</h2>
+          <form method="post" onSubmit={handleSubmit(PegarLogin)}>
+            <label>
+              <input
+                type="text"
+                placeholder="Usuário"
+                name="user"
+                {...register("user")}
+                required
+              />
+            </label>
+            <label>
+              <input
+                type="password"
+                placeholder="Senha"
+                name="password"
+                {...register("password")}
+                required
+              />
+            </label>
+            <button type="submit">Entrar</button>
+          </form>
+        </div>
+      </div>  
   );
 }
 

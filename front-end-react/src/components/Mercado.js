@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2'
+import CadastroUser from "./CadastroUser";
+import EditaroUser from "./editaroUser";
 import "../css/style.css";
-// const url_api = "https://unified-booster-32006.uc.r.appspot.com"  
-const url_api = "http://localhost:8080"   
+// const url_api = "https://unified-booster-32006.uc.r.appspot.com" 
+const url_api = "http://localhost:8080"
 
+async function sendUserDataToAPI(id, json) {
+  const response = await fetch(`${url_api}/user/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: localStorage.getItem('token'),
+    },
+    body: json,
+  });
+}
 
 
 
@@ -36,6 +48,7 @@ async function getProdutos() {
   const response = await fetch(`${url_api}/produtos`, {
     headers: {
       "Content-Type": "application/json",
+      "authorization": localStorage.getItem("token")
     },
   });
   const json = await response.json();
@@ -44,10 +57,11 @@ async function getProdutos() {
 }
 
 export default function Mercado() {
-  const [Editaritem, setEditarItem] = useState()
+  const [trocarParaCadastro, settrocarParaCadastro] = useState(false)
+  const [exibirFormulario, setExibirFormulario] = useState(false);
+  const [exibirFormularioeditor, setExibirFormularioeditor] = useState(false);
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const { register, handleSubmit, getValues } = useForm();
-  const [exibirFormulario, setExibirFormulario] = useState(false);
   const [produtos, setProdutos] = useState([]);
   const [carrinho, setCarrinho] = useState([]);
   const [info, setInf] = useState({
@@ -188,7 +202,7 @@ export default function Mercado() {
   async function onSubmit() {
     const data = getValues();
     data.valor = parseFloat(data.valor);
-    console.log(getValues(data.id))
+
 
     await postGenericJson(data, "produtos")
       .then(data => {
@@ -223,16 +237,36 @@ export default function Mercado() {
   }
   const toggleExibirFormulario = () => {
     setExibirFormulario(!exibirFormulario);
+    settrocarParaCadastro(false);
+    setExibirFormularioeditor(false)
   };
 
-  function editarProduto(produto){
-    console.log(produto)
-    setEditarItem(produto)
-    console.log(Editaritem)
-  }
+  const toggleExibirFormularioCadastro = () => {
+    settrocarParaCadastro(!trocarParaCadastro);
+    setExibirFormulario(false);
+    setExibirFormularioeditor(false)
+  };
+
+  const toggleExibirFormularioeditor = () => {
+    setExibirFormularioeditor(!exibirFormularioeditor);
+    setExibirFormulario(false);
+    settrocarParaCadastro(false);
+
+  };
+
+  const handleFormSubmitEditarProduto = () => {
+    const datauser = getValues();
+    const json = JSON.stringify(datauser);
+    console.log(json);
+    console.log(datauser.id);
+    sendUserDataToAPI(datauser.id, json)
+    getProdutos()
+  };
+
 
   return (
     <>
+
       <div className="topo">
         <div className="title">
           <h1>Mercadinho Tendi Tudo</h1>
@@ -251,12 +285,12 @@ export default function Mercado() {
             onChange={(e) => setTermoPesquisa(e.target.value)}
           />
         </div>
+
         <div className="meio_title">
           <h1>Meu Carrinho</h1>
         </div>
       </div>
       <div className="pages">
-
         <div className="produtos">
           {produtos.map((produto) => (
             <div key={produto.id} className="card">
@@ -279,9 +313,6 @@ export default function Mercado() {
                 <div className="cartao_botao">
                   <button className="cadbnt" onClick={() => adicionarProdutoAoCarrinho(produto)}>
                     Comprar
-                  </button>
-                  <button className="cadbnt" onClick={() => editarProduto(produto)}>
-                    Editar
                   </button>
                 </div>
               </div>
@@ -353,74 +384,99 @@ export default function Mercado() {
           <div className="bnts_carrinho">
             <button onClick={removeTudoDoCarrinho} className="cadbnt">Limpar</button>
             <button className="cadbnt" onClick={btn_finalizar}>Finalizar Conta</button>
-
+          </div>
+          <div className="bnts_carrinho">
             <button className="cadbnt" onClick={toggleExibirFormulario}>
               {exibirFormulario ?
-                "Ocultar Formulário"
+                "Ocultar Cadastro de Produto"
                 :
-                "Exibir Formulário"}
+                "Exibir Cadastro de Produto"}
             </button>
-          </div>
-          {exibirFormulario && (
-            <div className="cadastro">
-              <h2>Cadastro de Produtos</h2>
-              <form method="post" onSubmit={handleSubmit(onSubmit)}>
-                <div className="inputs">
-                  <div>
-                    <label>
-                      <input type="text" placeholder="Nome do Produto" {...register("nome")} required />
-                    </label>
-                    <label>
-                      <input type="text" placeholder="Imagem do produto" {...register("img")} required />
-                    </label>
+            {exibirFormulario && (
+              <div className="cadastro">
+                <h2>Cadastro de Produtos</h2>
+                <form method="post" onSubmit={handleSubmit(onSubmit)}>
+                  <div className="inputs">
+                    <div>
+                      <label>
+                        <input type="text" placeholder="Nome do Produto" {...register("nome")} required />
+                      </label>
+                      <label>
+                        <input type="text" placeholder="Imagem do produto" {...register("img")} required />
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        <input type="number" placeholder="Quantidade do estoque" {...register("estoque")} required />
+                      </label>
+                      <label>
+                        <input type="text" placeholder="Valor do produto" {...register("valor")} required />
+                      </label>
+                    </div>
                   </div>
-                  <div>
-                    <label>
-                      <input type="number" placeholder="Quantidade do estoque" {...register("estoque")} required />
-                    </label>
-                    <label>
-                      <input type="text" placeholder="Valor do produto" {...register("valor")} required />
-                    </label>
+                  <div className="btncad">
+                    <button className="cadbnt" type="submit">Cadastrar</button>
+                  </div>
+                </form>
+              </div>
+            )}
+            <button className="cadbnt" onClick={toggleExibirFormularioCadastro}>
+              {trocarParaCadastro ?
+                "Ocultar Cadastro/Exclusão de Usuario"
+                :
+                "Exibir Cadastro/Exclusão de Usuario"}
+            </button>
+            {trocarParaCadastro && (
+              <CadastroUser />
+            )}
+            <button className="cadbnt" onClick={toggleExibirFormularioeditor}>
+              {exibirFormularioeditor ?
+                "Ocultar Editor de Usuario/Produto"
+                :
+                "Exibir Editor de Usuario/Produto"}
+            </button>
+            {exibirFormularioeditor && (
+              <div className="cadastrouser">
+                <div>
+                  <EditaroUser />
+                </div>
+                <div>
+                  <div className="cadastro">
+                    <h2>Editar Produto</h2>
+                    <form method="post" onSubmit={handleSubmit(handleFormSubmitEditarProduto)}>
+                      <div className="inputs">
+                        <div>
+                          <label>
+                            <input
+                              type="text" placeholder="ID" {...register('id')} required />
+                          </label>
+                          <label>
+                            <input type="text" placeholder="Nome do Produto" {...register("nome")} required />
+                          </label>
+                          <label>
+                            <input type="text" placeholder="Imagem do produto" {...register("img")} required />
+                          </label>
+                        </div>
+                        <div>
+                          <label>
+                            <input type="number" placeholder="Quantidade do estoque" {...register("estoque")} required />
+                          </label>
+                          <label>
+                            <input type="text" placeholder="Valor do produto" {...register("valor")} required />
+                          </label>
+                        </div>
+                      </div>
+                      <div className="btncad">
+                        <button className="cadbnt" type="submit">Cadastrar</button>
+                      </div>
+                    </form>
                   </div>
                 </div>
-                <div className="btncad">
-                  <button className="cadbnt" type="submit">Cadastrar</button>
-                </div>
-              </form>
-            </div>
-          )}
-          <div>
-          {    
-          Editaritem ? (
-            <div key={Editaritem.id} className="card">
-            <div className="cartao">
-              <div className="cartao_top">
-                <input/>
               </div>
-              <div className="cartao_main">
-                <img src={Editaritem.img} alt="" />
-              </div>
-              <div className="cartao_valor">
-                <p>R$:{Editaritem.valor}</p>
-              </div>
-              <div className="cartao_estoque">
-                <p>Quantidade: {Editaritem.estoque}</p>
-              </div>
-              <div className="cartao_botao">
-                <button className="cadbnt">
-                  Remover
-                </button>
-              </div>
-            </div>
-          </div>
-          ): (
-            <></>
-          )
-}
-
+            )}
           </div>
         </div>
-      </div >
+      </div>
 
 
     </>
