@@ -121,7 +121,7 @@ app.get("/produtos", (req, res) => {
   res.status(200).jsonp(produtos_banco_de_dados);
 });
 function verifyToken(req, res, next) {
-  console.log(req)
+  // console.log(req)
   const token = req.headers.authorization;
   if (!token) {
     return res.status(401).json({ message: 'Token não fornecido' });
@@ -136,17 +136,18 @@ function verifyToken(req, res, next) {
 }
 
 app.post("/produtos",verifyToken,(req, res) => {
+  console.log("teste post")
   var newItem = req.body;
-  if(typeof newItem.id ==='number' && typeof newItem.user ==='string' &&  typeof newItem.img ==='string' && typeof newItem.valor ==='number' && typeof newItem.estoque ==='number'){
+  // if(typeof newItem.id ==='number' && typeof newItem.user ==='string' &&  typeof newItem.img ==='string' && typeof newItem.valor ==='number' && typeof newItem.estoque ==='number'){
     newItem.id=id;
     insertItem(newItem);
     id+=1
     res.status(200).jsonp(newItem);
-    console.log(res)
-  }else{
-    console.log(res)
-    res.status(400);
-  }
+    
+  // }else{
+    
+  //   res.status(400);
+  // }
   
 });
 
@@ -158,6 +159,7 @@ app.put("/produtos/:id", verifyToken, (req, res) => {
 });
 
 app.delete("/produtos/:id",  verifyToken,(req, res) => {
+  console.log("teste")
   const id = parseInt(req.params.id);
   deleteItem(id);
   res.status(200).jsonp(id);

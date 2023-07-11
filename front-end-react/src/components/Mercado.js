@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from 'sweetalert2'
 import "../css/style.css";
-const url_api = "https://unified-booster-392006.uc.r.appspot.com"  
-// const url_api = "http://localhost:8080"   
+// const url_api = "https://unified-booster-32006.uc.r.appspot.com"  
+const url_api = "http://localhost:8080"   
+
+
+
 
 async function deleteGenericJson(id, prefix) {
   const response = await fetch(`${url_api}/${prefix}/${id}`, {
@@ -392,7 +395,7 @@ export default function Mercado() {
             <div key={Editaritem.id} className="card">
             <div className="cartao">
               <div className="cartao_top">
-                <input value={Editaritem.nome} name='nome' onChange={handleChange}/>
+                <input/>
               </div>
               <div className="cartao_main">
                 <img src={Editaritem.img} alt="" />
@@ -423,11 +426,6 @@ export default function Mercado() {
     </>
   )
 
-  function handleChange(event) {
-    console.log(event.target.nome.value);
-    Editaritem.name =event.target.nome.value
-    Editaritem.
-    
-  }
+
 }
 
