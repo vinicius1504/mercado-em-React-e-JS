@@ -149,7 +149,7 @@ button{
     background-color: rgb(95, 53, 1);
     color: antiquewhite;
     height: 260px;
-    border: 1px black solid;
+    /* border: 1px black solid; */
     justify-content: space-around;
   }
 
@@ -160,7 +160,7 @@ button{
     background-color: rgb(95, 53, 1);
     color: antiquewhite;
     height: 230px;
-    border: 1px black solid;
+    /* border: 1px black solid; */
     justify-content: space-around;
   }
 

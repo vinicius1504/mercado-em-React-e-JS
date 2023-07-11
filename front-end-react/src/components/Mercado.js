@@ -7,8 +7,8 @@ import "../css/style.css";
 // const url_api = "https://unified-booster-32006.uc.r.appspot.com" 
 const url_api = "http://localhost:8080"
 
-async function sendUserDataToAPI(id, json) {
-  const response = await fetch(`${url_api}/user/${id}`, {
+async function sendUserDataToAPI(id, json, prefix) {
+  const response = await fetch(`${url_api}/${prefix}/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -256,11 +256,15 @@ export default function Mercado() {
 
   const handleFormSubmitEditarProduto = () => {
     const datauser = getValues();
+    datauser.valor = parseFloat(datauser.valor);
     const json = JSON.stringify(datauser);
     console.log(json);
     console.log(datauser.id);
-    sendUserDataToAPI(datauser.id, json)
-    getProdutos()
+    sendUserDataToAPI(datauser.id, json, "produtos")
+    getProdutos().then((data) => {
+      setProdutos(data);
+    });
+
   };
 
 
@@ -448,7 +452,7 @@ export default function Mercado() {
                         <div>
                           <label>
                             <input
-                              type="text" placeholder="ID" {...register('id')} required />
+                              type="number" placeholder="ID" {...register('id')} required />
                           </label>
                           <label>
                             <input type="text" placeholder="Nome do Produto" {...register("nome")} required />
