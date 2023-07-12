@@ -8,77 +8,94 @@ const url_api = "http://localhost:8080";
 
 
 async function sendUserDataToAPI(id, formData) {
-    const json = JSON.stringify(formData);
-    console.log(json);
-    console.log(id);
-  
-    const response = await fetch(`${url_api}/user/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: localStorage.getItem('token'),
-      },
-      body: json,
-    });
+
+  const json = JSON.stringify(formData);
+  console.log(formData);
+  // console.log(userdata)
+  const response = await fetch(`${url_api}/user/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: localStorage.getItem('token'),
+    },
+    body: json,
+  });
 }
-  
-  function EditaroUser() {
-    const { handleSubmit, register, getValues } = useForm();
+
+// async function Getusers() {
+//   const response = await fetch(`${url_api}/user`, {
+//       headers: {
+//           "Content-Type": "application/json",
+//           "authorization": localStorage.getItem("token")
+//       },
+//   });
+//   const json = await response.json();
+//   return json;
+
+// }
+
+
+function EditaroUser() {
+  const { handleSubmit, register, getValues } = useForm();
   
 
-    const handleFormSubmit = (formData) => {
-        const userdata = getValues(); 
-      sendUserDataToAPI(formData.id, userdata   );
-    };
-  
-    return (
-      <div className="cadastrouser">
-        <div>
-          <h2>Editar de Usuario</h2>
-          <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <div className="inputscaduser">
+  const handleFormSubmit = () => {
+    const userdata = getValues();
+    console.log(userdata)
+    userdata.id = parseFloat(userdata.id)
+    console.log(userdata.id)
+
+    sendUserDataToAPI(userdata.id, userdata);
+  };
+
+  return (
+    <div className="cadastrouser">
+      <div>
+        <h2>Editar de Usuario</h2>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <div className="inputscaduser">
+            <div>
+              <label>
+                <input
+                  type="text"
+                  placeholder="ID"
+                  {...register('id')}
+                  required
+                />
+              </label>
               <div>
                 <label>
                   <input
                     type="text"
-                    placeholder="ID"
-                    {...register('id')}
+                    placeholder="Usuário"
+                    {...register('user')}
                     required
                   />
                 </label>
-                <div>
-                  <label>
-                    <input
-                      type="text"
-                      placeholder="Usuário"
-                      {...register('user')}
-                      required
-                    />
-                  </label>
-                  <label>
-                    <input
-                      type="password"
-                      placeholder="Senha"
-                      {...register('password')}
-                      required
-                    />
-                  </label>
-                  <label>
-                    <input
-                      type="text"
-                      placeholder="Permissão"
-                      {...register('role')}
-                    />
-                  </label>
-                  <div className="btncad">
-                    <button className="cadbnt" type="submit">Cadastrar</button>
-                  </div>
+                <label>
+                  <input
+                    type="password"
+                    placeholder="Senha"
+                    {...register('password')}
+                    required
+                  />
+                </label>
+                <label>
+                  <input
+                    type="text"
+                    placeholder="Permissão"
+                    {...register('role')}
+                  />
+                </label>
+                <div className="btncad">
+                  <button className="cadbnt" type="submit">Salvar</button>
                 </div>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
-    );
-  }
+    </div>
+  );
+}
 export default EditaroUser;

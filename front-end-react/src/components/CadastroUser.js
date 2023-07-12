@@ -60,6 +60,7 @@ function CadastroUser() {
         })
     };
     async function removeruser(Usuario) {
+        console.log(Usuario)
         Swal.fire({
             title: 'Confirmar remoção',
             text: 'Tem certeza que deseja remover este produto?',

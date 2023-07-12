@@ -58,6 +58,7 @@ function Login() {
         localStorage.setItem("user", data.login)
         localStorage.setItem("token", data.token)
         localStorage.setItem("user",formData.user)
+        localStorage.setItem("role",data.role)
         setIsLogin(data.login);
       });
       

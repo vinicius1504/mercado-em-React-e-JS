@@ -51,7 +51,7 @@ const produtos_banco_de_dados = [
 ];
 
 const db_fake = [
-  { id: 0, user: "vinicius", password: "12345", img_user:"dsds" , role: "admin" },
+  { id: 0, user: "vinicius", password: "12345" , role: "admin" },
   { id: 1, user: "rafael", password: "12345", role: "admin" },
   { id: 2, user: "alison", password: "12345", role: "admin" },
   { id: 3, user: "fernando", password: "12345", role: "admin" },

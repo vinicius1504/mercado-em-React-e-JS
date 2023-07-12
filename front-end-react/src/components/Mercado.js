@@ -7,7 +7,7 @@ import "../css/style.css";
 // const url_api = "https://unified-booster-32006.uc.r.appspot.com" 
 const url_api = "http://localhost:8080"
 
-async function sendUserDataToAPI(id, json, prefix) {
+async function sendProdutoDataToAPI(id, json, prefix) {
   const response = await fetch(`${url_api}/${prefix}/${id}`, {
     method: 'PUT',
     headers: {
@@ -71,6 +71,7 @@ export default function Mercado() {
     produtos_dif: 0,
   });
   function adicionarProdutoAoCarrinho(produto) {
+    console.log(produto)
     if (carrinho.length === 0) {
       let new_produto = { ...produto, estoque: 1 };
       produto.estoque -= 1;
@@ -226,7 +227,7 @@ export default function Mercado() {
       cancelButtonText: 'Não',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const response = await deleteGenericJson(produto.id, "produtos")
+        const response = await deleteGenericJson(produto.id, "produtos", )
           .then(data => {
             const updatedProdutos = produtos.filter(item => item.id !== produto.id);
             setProdutos(updatedProdutos);
@@ -255,12 +256,13 @@ export default function Mercado() {
   };
 
   const handleFormSubmitEditarProduto = () => {
-    const datauser = getValues();
-    datauser.valor = parseFloat(datauser.valor);
-    const json = JSON.stringify(datauser);
+    const dataProduto = getValues();
+    dataProduto.valor = parseFloat(dataProduto.valor);
+    dataProduto.id = parseFloat(dataProduto.id);
+    const json = JSON.stringify(dataProduto);
     console.log(json);
-    console.log(datauser.id);
-    sendUserDataToAPI(datauser.id, json, "produtos")
+    console.log(dataProduto.id);
+    sendProdutoDataToAPI(dataProduto.id, json, "produtos")
     getProdutos().then((data) => {
       setProdutos(data);
     });
@@ -389,6 +391,7 @@ export default function Mercado() {
             <button onClick={removeTudoDoCarrinho} className="cadbnt">Limpar</button>
             <button className="cadbnt" onClick={btn_finalizar}>Finalizar Conta</button>
           </div>
+          
           <div className="bnts_carrinho">
             <button className="cadbnt" onClick={toggleExibirFormulario}>
               {exibirFormulario ?
@@ -471,7 +474,7 @@ export default function Mercado() {
                         </div>
                       </div>
                       <div className="btncad">
-                        <button className="cadbnt" type="submit">Cadastrar</button>
+                        <button className="cadbnt" type="submit">Salvar</button>
                       </div>
                     </form>
                   </div>
